@@ -22,4 +22,14 @@ public interface CampingDAO extends JpaRepository<Camping, Integer> {
 	
 	// 상세보기
 	public Camping findByMno(int mno);
+	
+	@Query(value = "SELECT * FROM camping "
+			+ "WHERE loc LIKE CONCAT('%', :loc, '%') "
+			+ "ORDER BY mno ASC "
+			+ "LIMIT :start, 12", nativeQuery = true)
+	public List<Camping> campingFindData(@Param("loc") String loc, @Param("start") Integer start);
+	
+	@Query(value = "SELECT COUNT(*) FROM camping "
+			+ "WHERE loc LIKE CONCAT('%', :loc, '%')", nativeQuery = true)
+	public int campingFindCount(@Param("loc") String loc);
 }

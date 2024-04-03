@@ -1,21 +1,24 @@
 package com.sist.web.manager;
 
-import org.springframework.stereotype.Component;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-// du4P_dJXInhGJKRq85PJ
-// bAOybXk9_K
+import java.util.*;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.springframework.stereotype.Component;
+
+import com.sist.web.entity.*;
+
 @Component
 public class NewsManager {
-	public static String newsFindData(String fd)
-	{
-		String result="";
-		String clientId = "du4P_dJXInhGJKRq85PJ"; //애플리케이션 클라이언트 아이디
+	
+    public List<NewsVO> newsFind(String fd) {
+        String clientId = "du4P_dJXInhGJKRq85PJ"; //애플리케이션 클라이언트 아이디
         String clientSecret = "bAOybXk9_K"; //애플리케이션 클라이언트 시크릿
 
 
@@ -27,7 +30,7 @@ public class NewsManager {
         }
 
 
-        String apiURL = "https://openapi.naver.com/v1/search/blog?display=50&query=" + text;    // JSON 결과
+        String apiURL = "https://openapi.naver.com/v1/search/news.json?query=" + text;    // JSON 결과
         //String apiURL = "https://openapi.naver.com/v1/search/blog.xml?query="+ text; // XML 결과
 
 
@@ -35,14 +38,30 @@ public class NewsManager {
         requestHeaders.put("X-Naver-Client-Id", clientId);
         requestHeaders.put("X-Naver-Client-Secret", clientSecret);
         String responseBody = get(apiURL,requestHeaders);
-
-
         System.out.println(responseBody);
-        result=responseBody;
-		return result;
-	}
-	
-	private static String get(String apiUrl, Map<String, String> requestHeaders){
+        
+        List<NewsVO> list=new ArrayList<NewsVO>();
+        try
+        {
+        	JSONParser jp=new JSONParser();
+        	JSONObject root=(JSONObject)jp.parse(responseBody); // {} []
+        	JSONArray arr=(JSONArray)root.get("items"); // 자바는 json으로 이렇게 변환해야 함
+        	
+        	for(int i=0;i<arr.size();i++)
+        	{
+        		JSONObject obj=(JSONObject)arr.get(i);
+        		NewsVO vo=new NewsVO();
+        		vo.setTitle((String)obj.get("title"));
+        		vo.setLink((String)obj.get("link"));
+        		vo.setDesc((String)obj.get("description"));
+        		list.add(vo);
+        	}
+        }catch(Exception ex) {}
+        return list;
+    }
+
+
+    private static String get(String apiUrl, Map<String, String> requestHeaders){
         HttpURLConnection con = connect(apiUrl);
         try {
             con.setRequestMethod("GET");

@@ -1,12 +1,8 @@
 package com.sist.web.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class NewsVO {
-	private String title;
-	private String description;
-	private String link;
+	private String title, link, desc;
 }
